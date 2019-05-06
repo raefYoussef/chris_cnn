@@ -1,0 +1,10 @@
+Evans:
+Preprocessed - 297
+
+Hemsworth:
+Preprocessed - 328
+
+Pratt:
+Downloaded - 649
+Non-Replicating - 533
+Preprocessed - 335
