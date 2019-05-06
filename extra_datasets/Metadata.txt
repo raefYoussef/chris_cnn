@@ -8,3 +8,15 @@ Pratt:
 Downloaded - 649
 Non-Replicating - 533
 Preprocessed - 335
+
+Evans Red Carpet:
+Downloaded - 618
+Non Duplicated - 464
+
+Hemsworth Red Carpet:
+Downloaded - 682
+Non Duplicated - 482
+
+Pratt Red Carpet:
+Downloaded - 569
+Non Duplicated - 443
