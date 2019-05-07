@@ -1,0 +1,3 @@
+- Roughly 900 images
+- One set (Evans) is not properly preprocessed
+- Overfitting

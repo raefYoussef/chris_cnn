@@ -12,6 +12,7 @@ from keras.preprocessing.image import img_to_array
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.model_selection import train_test_split
 from pyimagesearch.smallervggnet import SmallerVGGNet
+from TimeHistory import TimeHistory
 import matplotlib.pyplot as plt
 from imutils import paths
 import numpy as np
@@ -35,7 +36,7 @@ args = vars(ap.parse_args())
 
 # initialize the number of epochs to train for, initial learning rate,
 # batch size, and image dimensions
-EPOCHS = 100
+EPOCHS = 2
 INIT_LR = 1e-3
 BS = 32
 IMAGE_DIMS = (96, 96, 3)
@@ -75,8 +76,7 @@ labels = lb.fit_transform(labels)
 
 # partition the data into training and testing splits using 80% of
 # the data for training and the remaining 20% for testing
-(trainX, testX, trainY, testY) = train_test_split(data,
-	labels, test_size=0.2, random_state=42)
+(trainX, testX, trainY, testY) = train_test_split(data, labels, test_size=0.2, random_state=42)
 
 # construct the image generator for data augmentation
 aug = ImageDataGenerator(rotation_range=25, width_shift_range=0.1,
@@ -86,10 +86,12 @@ aug = ImageDataGenerator(rotation_range=25, width_shift_range=0.1,
 # initialize the model
 print("[INFO] compiling model...")
 model = SmallerVGGNet.build(width=IMAGE_DIMS[1], height=IMAGE_DIMS[0],
-	depth=IMAGE_DIMS[2], classes=len(lb.classes_))
+							depth=IMAGE_DIMS[2], classes=len(lb.classes_))
 opt = Adam(lr=INIT_LR, decay=INIT_LR / EPOCHS)
-model.compile(loss="categorical_crossentropy", optimizer=opt,
-	metrics=["accuracy"])
+model.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"])
+
+# callback to record epochs time
+time_callback = TimeHistory()
 
 # train the network
 print("[INFO] training network...")
@@ -97,7 +99,8 @@ H = model.fit_generator(
 	aug.flow(trainX, trainY, batch_size=BS),
 	validation_data=(testX, testY),
 	steps_per_epoch=len(trainX) // BS,
-	epochs=EPOCHS, verbose=1)
+	epochs=EPOCHS, verbose=1,
+	callbacks=[time_callback])
 
 # save the model to disk
 print("[INFO] serializing network...")
@@ -110,15 +113,32 @@ f.write(pickle.dumps(lb))
 f.close()
 
 # plot the training loss and accuracy
-plt.style.use("ggplot")
-plt.figure()
 N = EPOCHS
-plt.plot(np.arange(0, N), H.history["loss"], label="train_loss")
-plt.plot(np.arange(0, N), H.history["val_loss"], label="val_loss")
-plt.plot(np.arange(0, N), H.history["acc"], label="train_acc")
-plt.plot(np.arange(0, N), H.history["val_acc"], label="val_acc")
-plt.title("Training Loss and Accuracy")
+plt.style.use("ggplot")
+
+plt.figure()
+plt.plot(np.arange(0, N), H.history["loss"], label="Training Loss")
+plt.plot(np.arange(0, N), H.history["val_loss"], label="Validation Loss")
+plt.title("Model Loss")
 plt.xlabel("Epoch #")
-plt.ylabel("Loss/Accuracy")
+plt.ylabel("Loss")
+plt.legend(loc="upper right")
+plt.savefig("Model Loss")
+
+plt.figure()
+plt.plot(np.arange(0, N), H.history["acc"], label="Training Accuracy")
+plt.plot(np.arange(0, N), H.history["val_acc"], label="Validation Accuracy")
+plt.title("Model Loss")
+plt.xlabel("Epoch #")
+plt.ylabel("Loss")
 plt.legend(loc="upper left")
-plt.savefig(args["plot"])
+plt.savefig("Model Accuracy")
+
+# record the epoch times
+f = open("Epoch_Time.txt","w+")
+f.write("Total Time = %d \r\n" % (sum(time_callback.times)))
+
+for i in range(len(time_callback.times)):
+	f.write("Epoch Duration (%d) - %d \r\n" % (i, time_callback.times[i]))
+
+f.close()

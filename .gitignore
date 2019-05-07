@@ -1,0 +1,6 @@
+*.model
+*.lb
+*.png
+Epoch_Time.txt
+venv*
+__pycache__
