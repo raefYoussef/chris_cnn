@@ -36,7 +36,7 @@ args = vars(ap.parse_args())
 
 # initialize the number of epochs to train for, initial learning rate,
 # batch size, and image dimensions
-EPOCHS = 2
+EPOCHS = 100
 INIT_LR = 1e-3
 BS = 32
 IMAGE_DIMS = (96, 96, 3)
@@ -128,9 +128,9 @@ plt.savefig("Model Loss")
 plt.figure()
 plt.plot(np.arange(0, N), H.history["acc"], label="Training Accuracy")
 plt.plot(np.arange(0, N), H.history["val_acc"], label="Validation Accuracy")
-plt.title("Model Loss")
+plt.title("Model Accuracy")
 plt.xlabel("Epoch #")
-plt.ylabel("Loss")
+plt.ylabel("Accuracy")
 plt.legend(loc="upper left")
 plt.savefig("Model Accuracy")
 
