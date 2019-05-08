@@ -9,9 +9,13 @@ matplotlib.use("Agg")
 from keras.preprocessing.image import ImageDataGenerator
 from keras.optimizers import Adam
 from keras.preprocessing.image import img_to_array
+from keras.utils import plot_model
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.model_selection import train_test_split
-from pyimagesearch.smallervggnet import SmallerVGGNet
+# from cnn_models.vgg_16_lite import VGG_16_Lite
+# from cnn_models.vgg_13_lite import VGG_13_Lite
+from cnn_models.vgg_11_lite import VGG_11_Lite
+# from pyimagesearch.smallervggnet import SmallerVGGNet
 from TimeHistory import TimeHistory
 import matplotlib.pyplot as plt
 from imutils import paths
@@ -21,6 +25,9 @@ import random
 import pickle
 import cv2
 import os
+
+# add graphviz to path (used to visualize model)
+os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin/'
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
@@ -39,7 +46,7 @@ args = vars(ap.parse_args())
 EPOCHS = 100
 INIT_LR = 1e-3
 BS = 32
-IMAGE_DIMS = (96, 96, 3)
+IMAGE_DIMS = (2*96, 2*96, 3)
 
 # initialize the data and labels
 data = []
@@ -85,10 +92,12 @@ aug = ImageDataGenerator(rotation_range=25, width_shift_range=0.1,
 
 # initialize the model
 print("[INFO] compiling model...")
-model = SmallerVGGNet.build(width=IMAGE_DIMS[1], height=IMAGE_DIMS[0],
-							depth=IMAGE_DIMS[2], classes=len(lb.classes_))
+model = VGG_11_Lite.build(width=IMAGE_DIMS[1], height=IMAGE_DIMS[0], depth=IMAGE_DIMS[2], classes=len(lb.classes_))
 opt = Adam(lr=INIT_LR, decay=INIT_LR / EPOCHS)
 model.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"])
+
+# print network architecture
+plot_model(model, to_file='Model.png', show_shapes=True, show_layer_names=True)
 
 # callback to record epochs time
 time_callback = TimeHistory()
@@ -134,11 +143,27 @@ plt.ylabel("Accuracy")
 plt.legend(loc="upper left")
 plt.savefig("Model Accuracy")
 
+
+# stats
+loss = np.asarray(H.history["loss"])
+acc = np.asarray(H.history["acc"])
+val_loss = np.asarray(H.history["val_loss"])
+val_acc = np.asarray(H.history["val_acc"])
+times = time_callback.times
+tot_time = sum(times)
+
 # record the epoch times
-f = open("Epoch_Time.txt","w+")
-f.write("Total Time = %d \r\n" % (sum(time_callback.times)))
-
+epoch_meta_file = open("Epoch_Meta.txt","w+")
+epoch_meta_file.write("time, loss, val_loss, acc, val_acc\n")
 for i in range(len(time_callback.times)):
-	f.write("Epoch Duration (%d) - %d \r\n" % (i, time_callback.times[i]))
+	epoch_meta_file.write("%d, %f, %f, %f, %f,\n" % (times[i], loss[i], val_loss[i], acc[i], val_acc[i]))
+epoch_meta_file.close()
 
-f.close()
+epoch_summary_file = open("Epoch_Summary.txt","w+")
+epoch_summary_file.write("Total Time = %d\n" % (tot_time))
+epoch_summary_file.write("Average/Epoch = %f\n" % (tot_time/EPOCHS))
+epoch_summary_file.write("Loss Error Mean = %f\n" % (np.mean(val_loss - loss)))
+epoch_summary_file.write("Loss Error Variance = %f\n" % (np.var(val_loss- loss)))
+epoch_summary_file.write("Accuracy Error Mean = %f\n" % (np.mean(val_acc - acc)))
+epoch_summary_file.write("Accuracy Variance = %f\n" % (np.var(val_acc - acc)))
+epoch_summary_file.close()
