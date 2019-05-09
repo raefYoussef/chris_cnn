@@ -1,6 +1,7 @@
 *.model
 *.lb
 *.png
-Epoch_Time.txt
+Epoch_Meta.txt
+Epoch_Summary.txt
 venv*
 __pycache__

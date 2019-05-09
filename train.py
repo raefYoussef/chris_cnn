@@ -12,10 +12,6 @@ from keras.preprocessing.image import img_to_array
 from keras.utils import plot_model
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.model_selection import train_test_split
-# from cnn_models.vgg_16_lite import VGG_16_Lite
-# from cnn_models.vgg_13_lite import VGG_13_Lite
-from cnn_models.vgg_11_lite import VGG_11_Lite
-# from pyimagesearch.smallervggnet import SmallerVGGNet
 from TimeHistory import TimeHistory
 import matplotlib.pyplot as plt
 from imutils import paths
@@ -25,6 +21,13 @@ import random
 import pickle
 import cv2
 import os
+
+from cnn_models.vgg_5 import VGG_5
+from cnn_models.vgg_8_conv1 import VGG_8_Conv1
+from cnn_models.vgg_8 import VGG_8
+from cnn_models.vgg_5_nodrop import VGG_5_NoDrop
+# from pyimagesearch.smallervggnet import SmallerVGGNet
+
 
 # add graphviz to path (used to visualize model)
 os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin/'
@@ -46,7 +49,7 @@ args = vars(ap.parse_args())
 EPOCHS = 100
 INIT_LR = 1e-3
 BS = 32
-IMAGE_DIMS = (2*96, 2*96, 3)
+IMAGE_DIMS = (96, 96, 3)
 
 # initialize the data and labels
 data = []
@@ -92,7 +95,7 @@ aug = ImageDataGenerator(rotation_range=25, width_shift_range=0.1,
 
 # initialize the model
 print("[INFO] compiling model...")
-model = VGG_11_Lite.build(width=IMAGE_DIMS[1], height=IMAGE_DIMS[0], depth=IMAGE_DIMS[2], classes=len(lb.classes_))
+model = VGG_5_NoDrop.build(width=IMAGE_DIMS[1], height=IMAGE_DIMS[0], depth=IMAGE_DIMS[2], classes=len(lb.classes_))
 opt = Adam(lr=INIT_LR, decay=INIT_LR / EPOCHS)
 model.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"])
 

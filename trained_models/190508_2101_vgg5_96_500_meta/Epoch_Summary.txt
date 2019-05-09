@@ -1,0 +1,6 @@
+Total Time = 5890
+Average/Epoch = 58.900604
+Loss Error Mean = 0.436577
+Loss Error Variance = 0.146829
+Accuracy Error Mean = -0.087025
+Accuracy Variance = 0.006597
