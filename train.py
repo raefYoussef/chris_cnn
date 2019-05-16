@@ -23,9 +23,15 @@ import cv2
 import os
 
 from cnn_models.vgg_5 import VGG_5
+from cnn_models.vgg_6 import VGG_6
 from cnn_models.vgg_8_conv1 import VGG_8_Conv1
 from cnn_models.vgg_8 import VGG_8
+from cnn_models.vgg_5_fc import VGG_5_FC
 from cnn_models.vgg_5_nodrop import VGG_5_NoDrop
+from cnn_models.vgg_6_nodrop import VGG_6_NoDrop
+from cnn_models.vgg_8_nodrop import VGG_8_NoDrop
+from cnn_models.vgg_5_nobatch import VGG_5_NoBatch
+from cnn_models.vgg_8_nobatch import VGG_8_NoBatch
 # from pyimagesearch.smallervggnet import SmallerVGGNet
 
 
@@ -95,7 +101,7 @@ aug = ImageDataGenerator(rotation_range=25, width_shift_range=0.1,
 
 # initialize the model
 print("[INFO] compiling model...")
-model = VGG_5_NoDrop.build(width=IMAGE_DIMS[1], height=IMAGE_DIMS[0], depth=IMAGE_DIMS[2], classes=len(lb.classes_))
+model = VGG_8.build(width=IMAGE_DIMS[1], height=IMAGE_DIMS[0], depth=IMAGE_DIMS[2], classes=len(lb.classes_))
 opt = Adam(lr=INIT_LR, decay=INIT_LR / EPOCHS)
 model.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"])
 
